@@ -1,0 +1,52 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Web Dashboard",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/dashboard.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": true
+        },
+        {
+            "name": "Python: ETL Pipeline (All Sources)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pipeline.py",
+            "args": ["--source", "all"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": true
+        },
+        {
+            "name": "Python: ETL Pipeline (Stripe)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pipeline.py",
+            "args": ["--source", "stripe"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": true
+        },
+        {
+            "name": "Python: ETL Pipeline (Salesforce)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pipeline.py",
+            "args": ["--source", "salesforce"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": true
+        }
+    ]
+}

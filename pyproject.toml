@@ -1,0 +1,37 @@
+[project]
+name = "enterprise-etl-pipeline"
+version = "1.0.0"
+description = "Enterprise ETL Pipeline and Data Warehouse Synchronizer"
+authors = [
+    { name = "Lead Data Engineer", email = "engineering@enterprise.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+    "jinja2>=3.1.2",
+    "sqlalchemy>=2.0.0",
+    "tenacity>=8.2.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pandas>=2.0.0",
+    "polars>=0.18.0",
+    "psycopg2-binary>=2.9.6",
+    "requests>=2.31.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[tool.ruff.isort]
+known-first-party = ["src"]

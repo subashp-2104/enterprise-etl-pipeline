@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: warehouse_db
+    environment:
+      - POSTGRES_DB=warehouse
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d warehouse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  dashboard:
+    build: .
+    container_name: etl_dashboard
+    ports:
+      - "5000:5000"
+    environment:
+      - MOCK_MODE=True
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/warehouse
+      - STRIPE_API_KEY=mock_stripe_key
+      - SALESFORCE_USERNAME=mock_sf_username
+      - SALESFORCE_PASSWORD=mock_sf_password
+      - SALESFORCE_SECURITY_TOKEN=mock_sf_token
+      - SALESFORCE_CLIENT_ID=mock_sf_client_id
+      - SALESFORCE_CLIENT_SECRET=mock_sf_client_secret
+      - RAW_STORAGE_TYPE=local
+      - RAW_STORAGE_PATH=/app/raw_data
+    volumes:
+      - ./raw_data:/app/raw_data
+      - ./quarantine:/app/quarantine
+    depends_on:
+      db:
+        condition: service_healthy
+
+  airflow:
+    image: apache/airflow:2.6.2-python3.10
+    container_name: etl_airflow
+    command: standalone
+    ports:
+      - "8080:8080"
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/warehouse
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      - _PIP_ADDITIONAL_REQUIREMENTS=pydantic>=2.0.0 pydantic-settings>=2.0.0 polars>=0.18.0 pandas>=2.0.0 tenacity>=8.2.0 requests>=2.31.0 sqlalchemy>=2.0.0
+      - MOCK_MODE=True
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/warehouse
+      - RAW_STORAGE_TYPE=local
+      - RAW_STORAGE_PATH=/opt/airflow/raw_data
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/dags/src  # Mount code so the DAG can invoke functions directly
+      - ./raw_data:/opt/airflow/raw_data
+      - ./quarantine:/opt/airflow/quarantine
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
